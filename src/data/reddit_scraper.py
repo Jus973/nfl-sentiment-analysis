@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import praw
 import json
+from urllib.parse import urlparse
 
 def load_config():
     with open("config/reddit_config.json") as f:
@@ -19,8 +20,8 @@ def init_reddit():
     return reddit
 
 def scrape_posts(query, subreddit="nfl", limit=100, sort="new", start_date=None, end_date=None):
-    reddit=init_reddit()
-    posts=[]
+    reddit = init_reddit()
+    posts = []
 
     for submission in reddit.subreddit(subreddit).search(query, limit=limit, sort=sort):
         post_time = datetime.datetime.fromtimestamp(submission.created_utc, tz=datetime.timezone.utc)
@@ -28,47 +29,53 @@ def scrape_posts(query, subreddit="nfl", limit=100, sort="new", start_date=None,
             continue
         if end_date and post_time > end_date:
             continue
-        
+
         posts.append({
             "id": submission.id,
             "title": submission.title,
-            "selftext": submission.selftext,
-            "score": submission.score,
-            "num_comments": submission.num_comments,
-            "created_utc": datetime.datetime.fromtimestamp(submission.created_utc, tz=datetime.timezone.utc),
             "url": submission.url
         })
     
+    print(f"Query: {query}, found {len(posts)} posts")
     return pd.DataFrame(posts)
 
-def scrape_comments(submission_id, limit=1000):
-    reddit = init_reddit()
-    submission = reddit.submission(id=submission_id)
-    submission.comments.replace_more(limit=0)
-    comments = []
-    for comment in submission.comments.list()[:limit]:
-        comments.append({
-            "comment_id": comment.id,
-            "body": comment.body,
-            "score": comment.score,
-            "created_utc": datetime.datetime.fromtimestamp(comment.created_utc, datetime.timezone.utc)
-        })
-    return pd.DataFrame(comments)
 
-def save_posts(df, query, folder="data/raw/reddit_posts"):
-    os.makedirs(folder, exist_ok=True)
-    query_clean = query.replace(" ", "_")
-    filename = f"{folder}/{query_clean}_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
-    df.to_csv(filename, index=False)
-    print(f"Saved {len(df)} posts to {filename}")
-    return filename
+def extract_id_from_url(url):
+    path_parts = urlparse(url).path.split("/")
+    if "comments" in path_parts:
+        return path_parts[path_parts.index("comments") + 1]
+    return None
 
 if __name__ == "__main__":
-    query = '"Jerry Jeudy" trade'
-    
-    trade_date = datetime.datetime(2024, 3, 13, tzinfo=datetime.timezone.utc)
-    start = trade_date - pd.Timedelta(days=2)
-    end = trade_date + pd.Timedelta(days=2)
+    reddit_folder = "data/raw/reddit"
+    os.makedirs(reddit_folder, exist_ok=True)
 
-    posts_df = scrape_posts(query, limit=50000, start_date=start, end_date=end)
-    save_posts(posts_df, query)
+    queries_df = pd.read_csv("data/inputs/trade_queries.csv") 
+    all_posts = []
+
+    for _, row in queries_df.iterrows():
+        query = row["query"]
+        trade_note = row.get("note", query)
+        
+        trade_date_str = row.get("trade_date")
+        trade_date = datetime.datetime.fromisoformat(trade_date_str).replace(tzinfo=datetime.timezone.utc)
+        start = trade_date - pd.Timedelta(days=20)
+        end = trade_date + pd.Timedelta(days=20)
+        
+        posts_df = scrape_posts(query, limit=50000, start_date=start, end_date=end)
+        if not posts_df.empty:
+            posts_df["trade_note"] = trade_note
+            all_posts.append(posts_df)
+
+    manual_df = pd.read_csv("data/inputs/trade_posts.csv")
+    manual_df["id"] = manual_df["url"].apply(extract_id_from_url)
+    manual_df = manual_df.dropna(subset=["id"])
+    manual_df["trade_note"] = manual_df["trade_name"]
+
+    combined_df = pd.concat([pd.concat(all_posts, ignore_index=True) if all_posts else pd.DataFrame(columns=["id", "title", "url", "trade_note"]),
+                             manual_df[["id", "url", "trade_note"]]], ignore_index=True)
+    
+    ids_df = combined_df[["id", "trade_note", "url"]].drop_duplicates()
+    output_file = os.path.join(reddit_folder, "scraped_posts.csv")
+    ids_df.to_csv(output_file, index=False)
+    print(f"Saved {len(ids_df)} posts to {output_file}")

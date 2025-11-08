@@ -13,7 +13,6 @@ Planned Components
 - Data Collection
 - Data Processing
 - Sentiment Analysis
-  - 
 - Outcome Evaluation
 - Predictive Modeling
 
