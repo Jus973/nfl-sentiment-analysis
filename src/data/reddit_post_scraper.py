@@ -33,33 +33,28 @@ def scrape_posts(query, subreddit="nfl", limit=100, sort="new", start_date=None,
     print(f"Query: {query}, found {len(posts)} posts from {start_date.date()} to {end_date.date()}")
     return pd.DataFrame(posts)
 
-def filter_posts(posts_df, trade_name):
-    player_name = trade_name.replace(" trade", "").strip()
+def filter_posts(posts_df, player_name):
     keywords = ["trade", "traded", "deal", "acquire", "sign", "move"]
     pattern = f"{player_name}|{'|'.join(keywords)}"
     mask = posts_df['title'].str.contains(pattern, case=False, na=False, regex=True)
     return posts_df[mask]
 
-
-def extract_id_from_url(url):
-    path_parts = urlparse(url).path.split("/")
-    if "comments" in path_parts:
-        return path_parts[path_parts.index("comments") + 1]
-    return None
-
 if __name__ == "__main__":
     reddit_folder = "data/raw/reddit"
     os.makedirs(reddit_folder, exist_ok=True)
 
-    queries_df = pd.read_csv("data/inputs/trade_queries.csv") 
+    queries_df = pd.read_csv("data/inputs/trade_queries.csv")  # new format
     all_posts = []
     
     for _, row in queries_df.iterrows():
-        query = row["query"]
-        trade_name = row["trade_name"]
+        player_name = row["player_name"]
+        old_team = row["old_team"]
+        new_team = row["new_team"]
         trade_date_str = row["trade_date"]
         trade_date = datetime.datetime.fromisoformat(trade_date_str).replace(tzinfo=datetime.timezone.utc)
         
+        query = f'"{player_name}" trade to {new_team}'
+
         start = trade_date - pd.Timedelta(days=20)
         end = trade_date + pd.Timedelta(days=20)
         date_chunks = chunk_date_ranges(start, end, chunk_days=5)
@@ -72,10 +67,10 @@ if __name__ == "__main__":
 
         if posts_chunks:
             posts_df = pd.concat(posts_chunks, ignore_index=True)
-            filtered_posts = filter_posts(posts_df, trade_name)
+            filtered_posts = filter_posts(posts_df, player_name)
             if not filtered_posts.empty:
                 filtered_posts = filtered_posts.copy()
-                filtered_posts["trade_note"] = trade_name
+                filtered_posts["trade_note"] = f"{player_name} from {old_team} to {new_team}"
                 all_posts.append(filtered_posts)
 
     manual_df = pd.read_csv("data/inputs/trade_posts.csv")

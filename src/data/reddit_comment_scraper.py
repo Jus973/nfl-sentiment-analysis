@@ -14,6 +14,17 @@ def extract_comments(posts_csv, output_csv):
         post_id = row["id"]
         trade_note = row.get("trade_note", "")
         
+        print(row)
+
+        try:
+            parts = trade_note.split(" from ")
+            player_name = parts[0].strip()
+            old_new = parts[1].split(" to ")
+            old_team = old_new[0].strip()
+            new_team = old_new[1].strip()
+        except Exception:
+            player_name, old_team, new_team = "", "", ""
+
         try:
             submission = reddit.submission(id=post_id)
 
@@ -25,13 +36,16 @@ def extract_comments(posts_csv, output_csv):
                     wait = int(e.response.headers.get("Retry-After", 60))
                     print(f"Rate limited. Sleeping for {wait} seconds...")
                     time.sleep(wait)
-
+            
             for comment in submission.comments.list():
-                print(comment.id, comment.body)
 
+                print (comment.id, comment.body)
                 all_comments.append({
                     "post_id": post_id,
                     "trade_note": trade_note,
+                    "player_name": player_name,
+                    "old_team": old_team,
+                    "new_team": new_team,
                     "comment_id": comment.id,
                     "author": str(comment.author),
                     "body": comment.body,
