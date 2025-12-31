@@ -6,7 +6,6 @@ SCRAPED_COMMENTS = "data/raw/reddit/scraped_comments.csv"
 OUTPUT_FILE = "data/processed/reddit/cleaned_comments.csv"
 
 def clean_comment_text(text):
-    """Remove URLs, Reddit artifacts, and excessive whitespace."""
     text = re.sub(r'http\S+', '', text)
     text = re.sub(r'&gt;.*', '', text)
     text = re.sub(r'\s+', ' ', text)  
