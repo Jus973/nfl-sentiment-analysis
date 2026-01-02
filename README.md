@@ -4,7 +4,8 @@ Objective
 -
 
 - Analyze public and expert sentiment of NFL trades and evaluate how accurate this sentiment predicts the long-term results of these actual trades
-- Leverage Reddit, X, and expert media sources as inputs
+- Leverage Reddit API as inputs
+- Filter irrelevant conversations
 
 
 Components
@@ -12,15 +13,13 @@ Components
 
 - Data Collection
 - Data Processing
-  - Manually label half of the original scraped comments, then have BertE label the rest
-- Model Distillation
-- Sentiment Analysis
-  - Account for sarcasm i.e.
-    - comment_id: i1tkk80
-      player: Tyreek Hill   Chiefs -> Dolphins
-      score: 2   author: guessmyGTRaintShit
-      text:
-      Now the dolphins will finish 6-11 instead of 5-12! What a deal!
+  - Manually label half of the original scraped comments
+- Train irrelevance filter model
+  - Reddit conversations quickly turn unproductive in pure trade analysis sentiment
+- Train teacher model -> fine-tune BERT model
+  - Set 70% of labeled data to train, 15% for validation, and 15% for testing
+- Distill to a student model with DistillBERT with distillation loss and plus cross-entropy
+- Use the student for trade-level analysis
 - Outcome Evaluation
 - Predictive Modeling
 
