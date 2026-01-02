@@ -19,8 +19,7 @@ def label_loop():
             #missing or skipped rows
             if str(af.iat[i,0]) != str(df.iat[i+len(missedLabels),0]):
                 missedLabels.append(i)
-        
-        startingValue=len(missedLabels)
+    
 
     counter=startingValue
     outputDict={}
@@ -35,10 +34,17 @@ def label_loop():
     yf_indexed=pd.DataFrame(outputDict)
     yf_indexed.to_csv(OUTPUT_CSV, index=False)
 
-    returnDf=df.loc[startingValue:len(df)].iterrows()
+    returnDf=df.iterrows()
+    labeled_ids = set(af["comment_id"])
+    totalIterLength=len(df)
 
     vals=next(returnDf)
-    while counter < len(df):
+
+    while counter < totalIterLength:
+        if vals[1].values[0] in labeled_ids:
+            vals=next(returnDf)
+            counter+=1
+            continue
 
         print(vals[1].values[1] + " trade " + vals[1].values[2] + " " + vals[1].values[3])
 
@@ -61,10 +67,12 @@ def label_loop():
                 xf_indexed.to_csv(OUTPUT_CSV, index=False)
                 return
 
-            for x in outputDict.values():
-                print(len(x))
+            try: 
+                vals = next(returnDf)
+            except StopIteration:
+                print("Reached end of file.")
+                return
 
-            vals=next(returnDf)
             counter+=1
         else:
             print('relabel past')
