@@ -14,14 +14,14 @@ from sklearn.utils.class_weight import compute_class_weight
 import torch
 
 TRAINING_CSV="data/processed/reddit/labeled_with_generic_comments.csv"
-OUTPUT_DIR = "models/teacher_4class_class_weighted"
-MODEL_NAME = "roberta-base"
+OUTPUT_DIR = "models/large_teacher_4class_class_weighted"
+MODEL_NAME = "roberta-large"
 
 def tokenize_function(examples, tokenizer):
     return tokenizer(
         examples["text"],
         truncation=True,
-        max_length=160,
+        max_length=256,
     )
 
 def compute_metrics(eval_pred):
@@ -49,7 +49,8 @@ class ClassWeightedTrainer(Trainer):
         logits = outputs.logits
 
         loss_fct = torch.nn.CrossEntropyLoss(
-            weight=self.class_weights.to(logits.device)
+            weight=self.class_weights.to(logits.device),
+            label_smoothing=0.1
         )
         loss = loss_fct(logits, labels)
 
@@ -111,8 +112,8 @@ if __name__ == "__main__":
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
         num_train_epochs=8,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=32,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=2,
         eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=3e-5,
@@ -120,7 +121,12 @@ if __name__ == "__main__":
         load_best_model_at_end=True,
         metric_for_best_model="accuracy",
         logging_steps=50,
-        warmup_ratio=0.1
+        warmup_ratio=0.1,
+        fp16=False,         
+        bf16=False,
+        report_to="none",
+        remove_unused_columns=True,
+        no_cuda=True
     )
 
     data_collator = DataCollatorWithPadding(tokenizer)

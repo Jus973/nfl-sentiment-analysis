@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-model = AutoModelForSequenceClassification.from_pretrained("models/teacher_4class_class_weighted")
+model = AutoModelForSequenceClassification.from_pretrained("models/large_teacher_4class_class_weighted")
 model.eval()
 
 def predict(text):
