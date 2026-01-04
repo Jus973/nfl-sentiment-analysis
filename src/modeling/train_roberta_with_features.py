@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from datasets import load_dataset
+from src.modeling.roberta_with_features import RobertaWithFeatures
 
 from transformers import (
     AutoTokenizer,
@@ -60,44 +61,6 @@ def preprocess_function(examples, tokenizer):
     enc["labels"] = examples["label"]
     enc["sample_weight"] = sample_weight.tolist()
     return enc
-
-
-class RobertaWithFeatures(nn.Module):
-    def __init__(self, base_name, num_labels, aux_dim=8):
-        super().__init__()
-        self.config = AutoConfig.from_pretrained(base_name, num_labels=num_labels)
-        self.roberta = AutoModel.from_pretrained(base_name, config=self.config)
-        hidden = self.config.hidden_size
-        self.dropout = nn.Dropout(self.config.hidden_dropout_prob)
-        self.classifier = nn.Linear(hidden + aux_dim, num_labels)
-
-    def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        aux_features=None,
-        labels=None,
-    ):
-        outputs = self.roberta(input_ids=input_ids, attention_mask=attention_mask)
-        pooled = outputs.last_hidden_state[:, 0, :]  # CLS
-        pooled = self.dropout(pooled)
-
-        if aux_features is None:
-            aux_features = torch.zeros(
-                (pooled.size(0), 8), device=pooled.device, dtype=pooled.dtype
-            )
-        else:
-            aux_features = aux_features.to(pooled.dtype)
-
-        fused = torch.cat([pooled, aux_features], dim=-1)
-        logits = self.classifier(fused)
-
-        loss = None
-        if labels is not None:
-            loss_fct = nn.CrossEntropyLoss(reduction="none")
-            loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
-
-        return {"loss": loss, "logits": logits}
 
 class WeightedTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
