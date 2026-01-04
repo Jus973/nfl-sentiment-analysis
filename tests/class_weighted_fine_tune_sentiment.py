@@ -15,7 +15,7 @@ import torch
 
 TRAINING_CSV="data/processed/reddit/labeled_with_generic_comments.csv"
 OUTPUT_DIR = "models/large_teacher_4class_class_weighted"
-MODEL_NAME = "roberta-large"
+MODEL_NAME = "roberta-base"
 
 def tokenize_function(examples, tokenizer):
     return tokenizer(
@@ -112,8 +112,8 @@ if __name__ == "__main__":
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
         num_train_epochs=8,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=2,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=16,
         eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=3e-5,

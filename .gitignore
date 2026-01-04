@@ -1,1 +1,12 @@
-config/*
+reddit_config.json
+.env
+
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.onnx
+*.tflite
+*.h5
+
+*.safetensors
