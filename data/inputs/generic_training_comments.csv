@@ -1,0 +1,13 @@
+comment_id,player_name,old_team,new_team,author,text,score,created_utc,post_id,label
+gtrain001,Generic Player,A-Team,B-Team,user_pos_1,"This trade is absolutely amazing for the receiving team. They got a total steal.",250,2024-01-01 12:00:00,gpost001,2
+gtrain002,Generic Player,A-Team,B-Team,user_pos_2,"Huge win for the team that picked him up, this move makes them so much better.",120,2024-01-01 12:05:00,gpost001,2
+gtrain003,Generic Player,A-Team,B-Team,user_pos_3,"Great value and perfect scheme fit, this trade is fantastic for the new team.",75,2024-01-01 12:10:00,gpost001,2
+gtrain004,Generic Player,A-Team,B-Team,user_neg_1,"This trade is terrible for the receiving team, they gave up way too much.",210,2024-01-01 12:15:00,gpost001,1
+gtrain005,Generic Player,A-Team,B-Team,user_neg_2,"Awful move. The new team is getting worse and overpaying for an overrated player.",95,2024-01-01 12:20:00,gpost001,1
+gtrain006,Generic Player,A-Team,B-Team,user_neg_3,"Horrible decision by the front office, this hurts the team that acquired him.",60,2024-01-01 12:25:00,gpost001,1
+gtrain007,Generic Player,A-Team,B-Team,user_neu_1,"I honestly have no idea if this trade will help or hurt the new team.",40,2024-01-01 12:30:00,gpost001,0
+gtrain008,Generic Player,A-Team,B-Team,user_neu_2,"This trade seems fine, could go either way depending on how he plays.",30,2024-01-01 12:35:00,gpost001,0
+gtrain009,Generic Player,A-Team,B-Team,user_neu_3,"Meh, this move doesn't change much for the receiving team in my opinion.",20,2024-01-01 12:40:00,gpost001,0
+gtrain010,Generic Player,A-Team,B-Team,user_irrel_1,"Anyone else watching the NBA game tonight? Totally unrelated but curious.",15,2024-01-01 12:45:00,gpost001,3
+gtrain011,Generic Player,A-Team,B-Team,user_irrel_2,"Does anyone know where to buy the new team jersey? Not about the trade itself.",8,2024-01-01 12:50:00,gpost001,3
+gtrain012,Generic Player,A-Team,B-Team,user_irrel_3,"My fantasy league draft is next week, what site do you all use?",5,2024-01-01 12:55:00,gpost001,3
