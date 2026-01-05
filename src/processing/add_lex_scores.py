@@ -1,8 +1,12 @@
 import re
 import pandas as pd
 
-INPUT_CSV = "data/processed/reddit/labeled_with_generic_comments.csv"
-OUTPUT_CSV = "data/processed/reddit/lex_labeled_with_generic_comments.csv"
+#INPUT_CSV = "data/processed/reddit/labeled_with_generic_comments.csv"
+#OUTPUT_CSV = "data/processed/reddit/lex_labeled_with_generic_comments.csv"
+
+INPUT_CSV = "data/processed/reddit/cleaned_with_labels.csv"
+OUTPUT_CSV = "data/processed/reddit/lex_cleaned_comments.csv"
+
 
 POSITIVE_CUES = {
     "great", "good", "huge", "steal", "love", "solid", "perfect",

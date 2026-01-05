@@ -2,8 +2,12 @@ import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-INPUT_CSV = "data/processed/reddit/lex_labeled_with_generic_comments.csv"
-OUTPUT_CSV = "data/processed/reddit/full_pre_model_comment_set.csv"
+# INPUT_CSV = "data/processed/reddit/lex_labeled_with_generic_comments.csv"
+# OUTPUT_CSV = "data/processed/reddit/full_pre_model_comment_set.csv"
+
+INPUT_CSV = "data/processed/reddit/lex_cleaned_comments.csv"
+OUTPUT_CSV = "data/processed/reddit/full_comment_set.csv"
+
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
 
