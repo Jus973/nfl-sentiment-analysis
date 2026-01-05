@@ -1,4 +1,5 @@
 # NFL Trade Sentiment Analysis: Predicting Trade Outcomes from Reddit Discourse
+> **TL;DR:** A distilled transformer model shows that Reddit fan sentiment is moderately *inversely* correlated with NFL trade success (r = −0.52), achieving ~96% macro-F1 retention with ~2× faster inference.
 
 ## Objective
 
@@ -21,7 +22,7 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 
 ### 3. Teacher Model: Sentiment & Relevance Classifier
 - **Fine-tuned RoBERTa-base** on manually labeled data as a unified **4-class classifier** (Negative, Neutral, Positive, Irrelevant).
-- Used a 80% training, 20% validation data split
+- Used a 80% training, 20% validation data split.
 - Architecture: ~355M parameters, **achieved competitive Macro-F1** on the validation set but is computationally expensive for large-scale inference.
 - Auxilliary input features led to a **31% increase in model accuracy** and **40% increase in macro-F1.**
 
@@ -51,7 +52,7 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 - Trades rated as high-quality tend to generate *more negative* Reddit sentiment, and vice versa.
 
 **Interpretation:**
-- Analysis based on 10 trades with sufficient comment volume and sentiment signal
+- Analysis based on 10 trades with sufficient comment volume and sentiment signal.
 - A moderate negative correlation (**r = −0.52**) indicates that real-world outcomes often move **opposite** to initial fan sentiment, suggesting that early reactions are frequently misaligned with eventual results.
 
 ---
@@ -63,7 +64,7 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 
 ## Results
 
-- Aggregated Reddit sentiment exhibits a **moderate inverse correlation** with expert trade evaluations (**Pearson r = −0.52, p < 0.05**), suggesting that fan predictions are often the opposite of long-term results
+- Aggregated Reddit sentiment exhibits a **moderate inverse correlation** with expert trade evaluations (**Pearson r = −0.52, p < 0.05**), suggesting that fan predictions are often the opposite of long-term results.
 - The distilled student model retains **~96% of the teacher’s macro-F1** while significantly reducing model complexity.
 - Knowledge distillation yields a **~1.98× faster inference time**, enabling scalable trade-level sentiment analysis.
 
@@ -95,7 +96,7 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 - Human labeling introduced an uneven class distribution, particularly an overrepresentation of the *Irrelevant* class, which may affect minority-class performance despite mitigation efforts.
 
 ## Future Directions
-- Incorporate more NFL seasons and trades to increase sample size, and manually label more comments to increase model accuracy
+- Incorporate more NFL seasons and trades to increase sample size, and manually label more comments to increase model accuracy.
 - Separate 4-class model into two separate models, with an irrelevance filter first and then a 3 class neutral/good/bad sentiment model in hopes of simplifying model task for higher accuracy. 
 
 ## References
