@@ -83,6 +83,10 @@ def main():
     )
 
     df.loc[mask, "student_pred"] = preds
+
+    if LABEL_COLUMN in df.columns:
+        df.loc[df[LABEL_COLUMN].notna(), "student_pred"] = df.loc[df[LABEL_COLUMN].notna(), LABEL_COLUMN]
+    
     df.to_csv(OUTPUT_CSV, index=False)
 
     print(f"Saved labeled CSV to {OUTPUT_CSV}")
