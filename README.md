@@ -15,21 +15,20 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 - Filtered to posts within 40 days of official trade announcements for relevance.
 
 ### 2. Data Processing & Labeling
-- **Manual Annotation:** Labeled ~1.2k comments across sentiment (positive/negative/neutral) and relevance (trade-discussion vs. off-topic).
-- **Class Distribution:** Balanced labeling to ensure robust model training across all sentiment classes.
-- **Data Split:** 80% training, 20% validation
+- **Hand-labeled ~1.2k comments** across sentiment (positive/negative/neutral) and relevance (trade-discussion vs. off-topic).
+- Balanced labeling to ensure robust model training across all sentiment classes.
+- Added **auxilliary input features** including enriched text (Player + Team Context + Comment) and **lexical features** (VADER scores, keyword density).
 
 ### 3. Teacher Model: Sentiment & Relevance Classifier
-- Fine-tuned RoBERTa-base on manually labeled data as a unified 4-class classifier (Negative, Neutral, Positive, Irrelevant).
-- Input Features: Enriched text (Player + Team Context + Comment) + 8 auxiliary lexical features (VADER scores, keyword density).
-  - Led to a 31% increase in model accuracy and 40% increase in macro-F1
-- Architecture: ~355M parameters, achieved competitive Macro-F1 on the validation set but is computationally expensive for large-scale inference.
+- **Fine-tuned RoBERTa-base** on manually labeled data as a unified **4-class classifier** (Negative, Neutral, Positive, Irrelevant).
+- Used a 80% training, 20% validation data split
+- Architecture: ~355M parameters, **achieved competitive Macro-F1** on the validation set but is computationally expensive for large-scale inference.
+- Auxilliary input features led to a **31% increase in model accuracy** and **40% increase in macro-F1.**
 
 ### 5. Knowledge Distillation: Student Model
-- Distilled teacher into **DistilBERT-base** using a knowledge distillation (KD) loss:
-  $$\mathcal{L} = \alpha \cdot \mathcal{L}_{KD} + (1-\alpha) \cdot \mathcal{L}_{CE}$$
-  where $\alpha = 0.7$, temperature $T = 2.0$.
-- **Student model:** ~66M parameters (~5.4x smaller, ~6x faster inference).
+- Distilled the teacher into **DistilBERT-base** using a blended knowledge distillation loss:
+  `L = α · L_KD + (1 − α) · L_CE`, with `α = 0.7` and temperature `T = 2.0`.
+- **Student model:** ~66M parameters (~5.4× smaller, ~6× faster inference).
 - Distilled model retains teacher's soft probabilistic knowledge while reducing computational footprint.
 
 ### 6. Trade-Level Aggregation & Outcome Evaluation
@@ -49,11 +48,11 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 
 **Correlation Analysis:**
 - **Pearson r = −0.52** (p < 0.05)
-- **Negative correlation observed:** Trades rated as high-quality tend to generate *more negative* Reddit sentiment.
+- Trades rated as high-quality tend to generate *more negative* Reddit sentiment, and vice versa.
 
 **Interpretation:**
-- **Sample size:** Analysis based on 10 trades with sufficient comment volume and sentiment signal
-- **Inverse sentiment–outcome relationship:** A moderate negative correlation (**r = −0.52**) indicates that real-world outcomes often move **opposite** to initial fan sentiment, suggesting that early reactions are frequently misaligned with eventual results.
+- Analysis based on 10 trades with sufficient comment volume and sentiment signal
+- A moderate negative correlation (**r = −0.52**) indicates that real-world outcomes often move **opposite** to initial fan sentiment, suggesting that early reactions are frequently misaligned with eventual results.
 
 ---
 
@@ -61,6 +60,12 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
   <img src="sentiment_over_months.png" alt="Sentiments Over Months" width="45%">
   <img src="trade_sentiment_stacked_bar.png" alt="Trade Sentiment Stacked Bar" width="45%">
 </p>
+
+## Results
+
+- Aggregated Reddit sentiment exhibits a **moderate inverse correlation** with expert trade evaluations (**Pearson r = −0.52, p < 0.05**), suggesting that fan predictions are often the opposite of long-term results
+- The distilled student model retains **~96% of the teacher’s macro-F1** while significantly reducing model complexity.
+- Knowledge distillation yields a **~1.98× faster inference time**, enabling scalable trade-level sentiment analysis.
 
 ---
 
@@ -85,13 +90,13 @@ Determine whether sentiment from Reddit discussions accurately predicts the long
 | Distillation Loss          | N/A                     | 0.71 (KD + CE blended)     | — |
 
 ## Limitations
-- **Limited trade coverage:** The analysis focuses on sentiment surrounding **11 NFL trades**, which may not fully capture broader league-wide or season-long sentiment trends.
-- **Constrained labeled dataset size:** Approximately **1.2k comments were manually labeled** due to time constraints. Expanding the labeled dataset would likely improve model generalization and robustness.
-- **Class imbalance from manual annotation:** Human labeling introduced an **uneven class distribution**, particularly an overrepresentation of the *Irrelevant* class, which may affect minority-class performance despite mitigation efforts.
+- The analysis focuses on sentiment surrounding 11 NFL trades, which may not fully capture broader league-wide or season-long sentiment trends.
+- Only 1.2k comments were manually labeled due to time constraints. Expanding the labeled dataset would likely improve model generalization and robustness.
+- Human labeling introduced an uneven class distribution, particularly an overrepresentation of the *Irrelevant* class, which may affect minority-class performance despite mitigation efforts.
 
 ## Future Directions
-- **Expand breath:** Incorporate more NFL seasons and trades to increase sample size, and manually label more comments to increase model accuracy
-- **Fine-grained model:** Separate 4-class model into two separate models, with an irrelevance filter first and then a 3 class neutral/good/bad sentiment model in hopes of simplifying model task for higher accuracy. 
+- Incorporate more NFL seasons and trades to increase sample size, and manually label more comments to increase model accuracy
+- Separate 4-class model into two separate models, with an irrelevance filter first and then a 3 class neutral/good/bad sentiment model in hopes of simplifying model task for higher accuracy. 
 
 ## References
 - Hinton, G., Vanhoucke, V., & Dean, J. (2015). "Distilling the Knowledge in a Neural Network." arXiv:1503.02531.
